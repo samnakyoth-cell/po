@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Video Downloader</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins', sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:#0d0f14;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.container{
+  width:90%;
+  max-width:480px;
+  background:#12151c;
+  padding:30px;
+  border-radius:24px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+  text-align:center;
+}
+
+h2{
+  color:#fff;
+  font-weight:500;
+  margin-bottom:25px;
+}
+
+.input-box{
+  position:relative;
+  margin-bottom:25px;
+}
+
+.input-box input{
+  width:100%;
+  padding:18px 60px 18px 45px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#1a1d24;
+  color:#fff;
+  font-size:15px;
+  outline:none;
+}
+
+.input-box input::placeholder{
+  color:#9aa0a6;
+}
+
+.icon{
+  position:absolute;
+  left:15px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:18px;
+  color:#9aa0a6;
+}
+
+.paste-btn{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:12px;
+  background:#ff4b5c;
+  color:#fff;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.find-btn{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:18px;
+  font-size:18px;
+  color:#fff;
+  cursor:pointer;
+  background:linear-gradient(90deg,#ff4b5c,#ff2e63);
+  transition:.25s;
+}
+
+.find-btn:hover{
+  transform:scale(1.02);
+  opacity:.9;
+}
+
+.status{
+  margin-top:18px;
+  font-size:14px;
+  color:#aab2bd;
+  min-height:20px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Enter Video Link</h2>
+
+  <div class="input-box">
+    <span class="icon">🔗</span>
+    <input id="videoLink" type="text" placeholder="https://www.tiktok.com/..." />
+    <button class="paste-btn" onclick="pasteLink()">📋</button>
+  </div>
+
+  <button class="find-btn" onclick="findVideo()">Find Video</button>
+
+  <div class="status" id="statusText"></div>
+</div>
+
+<script>
+async function pasteLink(){
+  try{
+    const text = await navigator.clipboard.readText();
+    document.getElementById("videoLink").value = text;
+  }catch(e){
+    alert("Clipboard permission denied");
+  }
+}
+
+async function findVideo(){
+  const link = document.getElementById("videoLink").value.trim();
+  const status = document.getElementById("statusText");
+
+  if(!link){
+    alert("Please enter video link!");
+    return;
+  }
+
+  status.textContent = "Processing... please wait";
+
+  try{
+    const res = await fetch("http://127.0.0.1:5000/download",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ url: link })
+    });
+
+    const data = await res.json();
+    status.textContent = data.message || "Done";
+  }catch(err){
+    status.textContent = "Cannot connect to server";
+  }
+}
+</script>
+
+</body>
+</html>
